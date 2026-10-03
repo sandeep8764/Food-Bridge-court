@@ -1,0 +1,55 @@
+{
+  "hash": "0e428731",
+  "configHash": "53fadf61",
+  "lockfileHash": "7f45e500",
+  "browserHash": "3fbce187",
+  "optimized": {
+    "axios": {
+      "src": "../../../node_modules/axios/index.js",
+      "file": "axios.js",
+      "fileHash": "d2059df0",
+      "needsInterop": false
+    },
+    "react": {
+      "src": "../../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "7a242b57",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "c1e71a93",
+      "needsInterop": true
+    },
+    "react-hook-form": {
+      "src": "../../../node_modules/react-hook-form/dist/index.esm.mjs",
+      "file": "react-hook-form.js",
+      "fileHash": "c9608a33",
+      "needsInterop": false
+    },
+    "react-router-dom": {
+      "src": "../../../node_modules/react-router-dom/dist/index.js",
+      "file": "react-router-dom.js",
+      "fileHash": "2a19615f",
+      "needsInterop": false
+    },
+    "recharts": {
+      "src": "../../../node_modules/recharts/es6/index.js",
+      "file": "recharts.js",
+      "fileHash": "a3038533",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-J6YDWXRM": {
+      "file": "chunk-J6YDWXRM.js"
+    },
+    "chunk-QSJEB4BL": {
+      "file": "chunk-QSJEB4BL.js"
+    },
+    "chunk-PX6F3LHL": {
+      "file": "chunk-PX6F3LHL.js"
+    }
+  }
+}
