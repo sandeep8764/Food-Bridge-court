@@ -1,15 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+
+const PROFILE_IMAGE_KEY = 'foodbridge_profile_image';
 
 export default function ProfilePage() {
   const { user, refreshUser } = useAuth();
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [previewImage, setPreviewImage] = useState(() => localStorage.getItem(PROFILE_IMAGE_KEY) || user?.profile_image || '');
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { isSubmitting }
   } = useForm({
     defaultValues: {
@@ -19,15 +23,40 @@ export default function ProfilePage() {
       address: user?.address || '',
       city: user?.city || '',
       state: user?.state || '',
-      profile_image: user?.profile_image || ''
+      profile_image: user?.profile_image || localStorage.getItem(PROFILE_IMAGE_KEY) || ''
     }
   });
+
+  useEffect(() => {
+    if (user?.profile_image) {
+      setPreviewImage(user.profile_image);
+      setValue('profile_image', user.profile_image);
+    }
+  }, [user, setValue]);
+
+  const handleImageSelect = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result || '');
+      localStorage.setItem(PROFILE_IMAGE_KEY, dataUrl);
+      setPreviewImage(dataUrl);
+      setValue('profile_image', dataUrl, { shouldValidate: true });
+    };
+    reader.readAsDataURL(file);
+  };
 
   const onSubmit = async (values) => {
     setError('');
     setMessage('');
     try {
-      await api.put('/users/profile', values);
+      const payload = {
+        ...values,
+        profile_image: values.profile_image || localStorage.getItem(PROFILE_IMAGE_KEY) || ''
+      };
+      await api.put('/users/profile', payload);
       await refreshUser();
       setMessage('Profile updated successfully');
     } catch (submissionError) {
@@ -51,7 +80,16 @@ export default function ProfilePage() {
           <Input label="Address" {...register('address')} />
           <Input label="City" {...register('city')} />
           <Input label="State" {...register('state')} />
-          <Input label="Profile Image URL" className="md:col-span-2" {...register('profile_image')} />
+
+          <div className="md:col-span-2 space-y-2">
+            <label className="block text-sm text-slate-300">Profile Image</label>
+            <input type="file" accept="image/*" onChange={handleImageSelect} className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-200" />
+            {previewImage && (
+              <img src={previewImage} alt="Profile preview" className="mt-2 h-28 w-28 rounded-full object-cover border border-slate-700" />
+            )}
+            <input type="hidden" {...register('profile_image')} />
+          </div>
+
           {message && <div className="md:col-span-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-emerald-200">{message}</div>}
           {error && <div className="md:col-span-2 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-red-200">{error}</div>}
           <button disabled={isSubmitting} className="md:col-span-2 rounded-xl bg-emerald-500 px-4 py-3 font-semibold text-slate-950 disabled:opacity-60">

@@ -17,15 +17,310 @@ const roleRedirects = {
   VOLUNTEER: '/volunteer/dashboard'
 };
 
+const indianStates = [
+  'Andhra Pradesh',
+  'Arunachal Pradesh',
+  'Assam',
+  'Bihar',
+  'Chhattisgarh',
+  'Goa',
+  'Gujarat',
+  'Haryana',
+  'Himachal Pradesh',
+  'Jharkhand',
+  'Karnataka',
+  'Kerala',
+  'Madhya Pradesh',
+  'Maharashtra',
+  'Manipur',
+  'Meghalaya',
+  'Mizoram',
+  'Nagaland',
+  'Odisha',
+  'Punjab',
+  'Rajasthan',
+  'Sikkim',
+  'Tamil Nadu',
+  'Telangana',
+  'Tripura',
+  'Uttar Pradesh',
+  'Uttarakhand',
+  'West Bengal',
+  'Andaman and Nicobar Islands',
+  'Chandigarh',
+  'Dadra and Nagar Haveli and Daman and Diu',
+  'Delhi',
+  'Jammu and Kashmir',
+  'Ladakh',
+  'Lakshadweep',
+  'Puducherry'
+];
+
+const cityOptionsByState = {
+  'Andhra Pradesh': ['Visakhapatnam', 'Vijayawada', 'Guntur', 'Rajahmundry'],
+  'Arunachal Pradesh': ['Itanagar', 'Naharlagun', 'Pasighat', 'Tawang'],
+  'Assam': ['Guwahati', 'Silchar', 'Dibrugarh', 'Jorhat'],
+  'Bihar': ['Patna', 'Gaya', 'Muzaffarpur', 'Bhagalpur'],
+  'Chhattisgarh': ['Raipur', 'Bilaspur', 'Durg', 'Bhilai'],
+  Goa: ['Panaji', 'Margao', 'Vasco da Gama', 'Mapusa'],
+  Gujarat: ['Ahmedabad', 'Surat', 'Vadodara', 'Rajkot'],
+  Haryana: ['Gurugram', 'Faridabad', 'Panipat', 'Hisar'],
+  'Himachal Pradesh': ['Shimla', 'Mandi', 'Solan', 'Dharamshala'],
+  Jharkhand: ['Ranchi', 'Jamshedpur', 'Dhanbad', 'Bokaro'],
+  Karnataka: ['Bengaluru', 'Mysuru', 'Hubballi', 'Mangaluru'],
+  Kerala: ['Thiruvananthapuram', 'Kochi', 'Kozhikode', 'Thrissur'],
+  'Madhya Pradesh': ['Bhopal', 'Indore', 'Gwalior', 'Jabalpur'],
+  Maharashtra: ['Mumbai', 'Pune', 'Nagpur', 'Nashik'],
+  Manipur: ['Imphal', 'Thoubal', 'Kakching', 'Ukhrul'],
+  Meghalaya: ['Shillong', 'Tura', 'Jowai', 'Nongpoh'],
+  Mizoram: ['Aizawl', 'Lunglei', 'Champhai', 'Serchhip'],
+  Nagaland: ['Kohima', 'Dimapur', 'Mokokchung', 'Chümoukedima'],
+  Odisha: ['Bhubaneswar', 'Cuttack', 'Puri', 'Sambalpur'],
+  Punjab: ['Chandigarh', 'Ludhiana', 'Amritsar', 'Jalandhar'],
+  Rajasthan: ['Jaipur', 'Jodhpur', 'Udaipur', 'Ajmer'],
+  Sikkim: ['Gangtok', 'Namchi', 'Gyalshing', 'Mangan'],
+  'Tamil Nadu': ['Chennai', 'Coimbatore', 'Madurai', 'Salem'],
+  Telangana: ['Hyderabad', 'Warangal', 'Nizamabad', 'Secunderabad'],
+  Tripura: ['Agartala', 'Udaipur', 'Khowai', 'Dharmanagar'],
+  'Uttar Pradesh': ['Lucknow', 'Kanpur', 'Varanasi', 'Agra'],
+  Uttarakhand: ['Dehradun', 'Haridwar', 'Rishikesh', 'Haldwani'],
+  'West Bengal': ['Kolkata', 'Howrah', 'Durgapur', 'Asansol'],
+  'Andaman and Nicobar Islands': ['Port Blair', 'Car Nicobar', 'Havelock Island', 'Neil Island'],
+  Chandigarh: ['Chandigarh'],
+  'Dadra and Nagar Haveli and Daman and Diu': ['Silvassa', 'Daman', 'Diu'],
+  Delhi: ['New Delhi', 'Dwarka', 'Rohini', 'Karol Bagh'],
+  'Jammu and Kashmir': ['Srinagar', 'Jammu', 'Anantnag', 'Baramulla'],
+  Ladakh: ['Leh', 'Kargil', 'Diskit', 'Padum'],
+  Lakshadweep: ['Kavaratti', 'Agatti', 'Minicoy', 'Andrott'],
+  Puducherry: ['Puducherry', 'Karaikal', 'Mahe', 'Yanam']
+};
+
+const organizationTypeOptions = ['Public', 'Private'];
+
+const organizationNamesByType = {
+  Public: ['City Relief Kitchen', 'Green Plate Initiative', 'Community Nutrition Hub', 'Hope Food Bank', 'Raj Nagar Food Center'],
+  Private: ['Spice Garden Restaurant', 'Sunrise Catering', 'Blue Lotus Foods', 'Fresh Table Kitchen', 'Nourish Meal Co.']
+};
+
+const areaOptionsByStateCity = {
+  'Andhra Pradesh': {
+    'Visakhapatnam': ['MVP Colony', 'Gajuwaka', 'Dwaraka Nagar', 'Marripalem'],
+    'Vijayawada': ['Governorpet', 'Benz Circle', 'Patamata', 'Auto Nagar'],
+    'Guntur': ['Brodipet', 'Arundelpet', 'Lakshmipuram', 'Sankar Nagar'],
+    'Rajahmundry': ['Kovvur Road', 'Prakash Nagar', 'Rajamundry Town', 'Gokavaram Road']
+  },
+  'Arunachal Pradesh': {
+    'Itanagar': ['Itanagar Township', 'Sector A', 'Sector B', 'Naharlagun'],
+    'Naharlagun': ['Niti Vihar', 'Nahar Market', 'Lal Circle', 'Bali Kheti'],
+    'Pasighat': ['Borigog', 'Mebo', 'Pasighat Town', 'Ruksin Road'],
+    'Tawang': ['Main Market', 'Monastery Road', 'Tawang Town', 'Tseringang']
+  },
+  Assam: {
+    'Guwahati': ['Paltan Bazaar', 'Ulubari', 'Beltola', 'Dispur'],
+    'Silchar': ['Madhya Ghat', 'Tarapur', 'Station Road', 'Rangirkhari'],
+    'Dibrugarh': ['A.T. Road', 'Banipur', 'Dibrugarh Town', 'Barbaruah'],
+    'Jorhat': ['Sivasagar Road', 'Kachari', 'Tarajan', 'Brahmaputra']
+  },
+  Bihar: {
+    'Patna': ['Boring Road', 'Kankarbagh', 'Anandpuri', 'Golambar'],
+    'Gaya': ['Civil Lines', 'Laxmi Nagar', 'Dhanbad Road', 'Rajnagar'],
+    'Muzaffarpur': ['Station Road', 'Motijheel', 'Dholi', 'Mithanpura'],
+    'Bhagalpur': ['Nehru Nagar', 'Ghantaghar', 'Sultanganj', 'Tilkamanjhi']
+  },
+  'Chhattisgarh': {
+    'Raipur': ['Civil Lines', 'Shankar Nagar', 'Amapali', 'Moudhapara'],
+    'Bilaspur': ['Tifra', 'Moudhapara', 'Amarkantak Road', 'Gol Bazar'],
+    'Durg': ['Bhilai Road', 'Station Road', 'Guru Ghasidas Nagar', 'Mendri'],
+    'Bhilai': ['Supela', 'Newai', 'Amanaka', 'Ravindra Nagar']
+  },
+  Goa: {
+    'Panaji': ['Campal', 'Miramar', 'Margao', 'Taleigao'],
+    'Margao': ['Borda', 'Navelim', 'Cortalim', 'Varca'],
+    'Vasco da Gama': ['Mormugao', 'Baina', 'Bogmalo', 'Dabolim'],
+    'Mapusa': ['Mapusa Market', 'Parra', 'Calangute', 'Arpora']
+  },
+  Gujarat: {
+    'Ahmedabad': ['Navrangpura', 'Satellite', 'Bopal', 'CG Road'],
+    'Surat': ['Adajan', 'Athwa', 'Piplod', 'Udhna'],
+    'Vadodara': ['Alkapuri', 'Makarpura', 'Manjalpur', 'Akota'],
+    'Rajkot': ['University Road', 'Aji', 'Kalawad Road', 'Race Course']
+  },
+  Haryana: {
+    'Gurugram': ['Cyber City', 'Sushant Lok', 'Sector 29', 'MG Road'],
+    'Faridabad': ['NIT', 'Sector 15', 'Old Faridabad', 'Ballabgarh'],
+    'Panipat': ['Model Town', 'Krishna Colony', 'Sector 11', 'Sadar Bazar'],
+    'Hisar': ['Urban Estate', 'Model Town', 'Balsamand', 'Jhajjar Road']
+  },
+  'Himachal Pradesh': {
+    'Shimla': ['Mall Road', 'Kasumpti', 'Boileauganj', 'Summer Hill'],
+    'Mandi': ['Mandi Town', 'Bhootnath', 'Sundernagar', 'Dharampur'],
+    'Solan': ['The Mall', 'Parwanoo', 'Kasauli Road', 'Yol'],
+    'Dharamshala': ['McLeodganj', 'Lower Dharamsala', 'Naddi', 'Bhagsu']
+  },
+  Jharkhand: {
+    'Ranchi': ['Hinoo', 'Doranda', 'Kankar', 'Kutchery'],
+    'Jamshedpur': ['Bistupur', 'Adityapur', 'Sakchi', 'Sonari'],
+    'Dhanbad': ['Bank More', 'Jharia', 'Kumardubi', 'Govindpur'],
+    'Bokaro': ['Sector 4', 'Sector 9', 'City Centre', 'Chas']
+  },
+  Karnataka: {
+    'Bengaluru': ['Indiranagar', 'Koramangala', 'Whitefield', 'HSR Layout'],
+    'Mysuru': ['Vijayanagar', 'Jayalakshmipuram', 'Kuvempunagar', 'Srirangapatna'],
+    'Hubballi': ['Unkal', 'Basaveshwar Nagar', 'Gokul Road', 'Old Hubli'],
+    'Mangaluru': ['Kankanady', 'Kadri', 'Surathkal', 'Pumpwell']
+  },
+  Kerala: {
+    'Thiruvananthapuram': ['Pattom', 'Vazhuthacaud', 'Kazhakuttam', 'Kowdiar'],
+    'Kochi': ['Kakkanad', 'Ernakulam', 'Fort Kochi', 'Aluva'],
+    'Kozhikode': ['West Hill', 'Feroke', 'Mavoor Road', 'Chevarambalam'],
+    'Thrissur': ['Ayyanthole', 'Koorkenchery', 'Swaraj Round', 'Punkunnam']
+  },
+  'Madhya Pradesh': {
+    'Bhopal': ['Arera Colony', 'MP Nagar', 'New Market', 'Kolar Road'],
+    'Indore': ['Vijay Nagar', 'Rajwada', 'Palasia', 'Higuchi'],
+    'Gwalior': ['Madhotal', 'City Centre', 'Thatipur', 'Lashkar'],
+    'Jabalpur': ['Napier Town', 'Adhartal', 'Ghamapur', 'Madan Mahal']
+  },
+  Maharashtra: {
+    'Mumbai': ['Andheri', 'Powai', 'Dadar', 'Chembur'],
+    'Pune': ['Kharadi', 'Viman Nagar', 'Baner', 'Shivaji Nagar'],
+    'Nagpur': ['Sadar', 'Dhantoli', 'Manish Nagar', 'Nandanvan'],
+    'Nashik': ['College Road', 'CBS', 'Gangapur Road', 'Satpur']
+  },
+  Manipur: {
+    'Imphal': ['Singjamei', 'Thangmeiband', 'Wangkhei', 'Khuman Lampak'],
+    'Thoubal': ['Thoubal Town', 'Wangjing', 'Kakching', 'Heirok'],
+    'Kakching': ['Kakching Ward 1', 'Makhong', 'Lairenjam', 'Kakching Main'],
+    'Ukhrul': ['Ukhrul Town', 'Chingai', 'Jessami', 'Somdal']
+  },
+  Meghalaya: {
+    'Shillong': ['Police Bazar', 'Laitumkhrah', 'Mawlai', 'Laban'],
+    'Tura': ['Tura Town', 'Selsella', 'Dalu', 'Betasing'],
+    'Jowai': ['Jowai Town', 'Mukhla', 'Umlong', 'Khliehriat'],
+    'Nongpoh': ['Nongpoh Market', 'Nongstoin', 'Umkiang', 'Mawphlang']
+  },
+  Mizoram: {
+    'Aizawl': ['Electric Veng', 'Dulte', 'Ramhlun', 'Khatla'],
+    'Lunglei': ['Bawngkawn', 'Lunglei Town', 'Blue Pine', 'Hnahthial'],
+    'Champhai': ['Town Area', 'Chawngte', 'Hnahthial', 'Republican'],
+    'Serchhip': ['Serchhip Town', 'Ngopa', 'Mizoram', 'Lunglei Road']
+  },
+  Nagaland: {
+    'Kohima': ['Lower Block', 'New Market', 'Sevülie', 'Chiechama'],
+    'Dimapur': ['Station Road', 'Eden', 'Lalganj', 'P2'],
+    'Mokokchung': ['Town Area', 'Aonglenden', 'Longkhum', 'Mopong'],
+    'Chümoukedima': ['Chümoukedima Town', 'Phrie', 'Seithekema', 'Tuli']
+  },
+  Odisha: {
+    'Bhubaneswar': ['Sahid Nagar', 'Patia', 'Khandagiri', 'Bapuji Nagar'],
+    'Cuttack': ['Madhupatna', 'Madhusudan Nagar', 'Buxi Bazar', 'Adivasi Basti'],
+    'Puri': ['Brahmagiri', 'Sea Beach', 'Raghurajpur', 'Kakatpur'],
+    'Sambalpur': ['Sambalpur Town', 'Ainthapali', 'Burla', 'Laikera']
+  },
+  Punjab: {
+    'Chandigarh': ['Sector 17', 'Sector 22', 'Manimajra', 'Madhya Marg'],
+    'Ludhiana': ['Civil Lines', 'Model Town', 'Pakhowal Road', 'Miller Ganj'],
+    'Amritsar': ['Ranjit Avenue', 'Hall Bazaar', 'Lawrence Road', 'Majitha Road'],
+    'Jalandhar': ['Model Town', 'Basti Bawa Khel', 'Ladowali Road', 'Madhopur']
+  },
+  Rajasthan: {
+    'Jaipur': ['Malviya Nagar', 'Vaishali Nagar', 'Sodala', 'Mansarovar'],
+    'Jodhpur': ['Ratanada', 'Basni', 'Paota', 'BJS Colony'],
+    'Udaipur': ['Hiran Magri', 'Madhuban', 'Sai Colony', 'Shastri Circle'],
+    'Ajmer': ['Vaishali Nagar', 'Kishangarh', 'Gulzar Colony', 'Dargah Road']
+  },
+  Sikkim: {
+    'Gangtok': ['M G Marg', 'Tadong', 'Deorali', 'Sichey'],
+    'Namchi': ['Namchi Town', 'South Sikkim', 'Tendong', 'Ralong'],
+    'Gyalshing': ['Gyalshing Market', 'Soreng', 'Aritar', 'Khamdong'],
+    'Mangan': ['Mangan Town', 'Sakyong', 'Lungnak', 'Singtam']
+  },
+  'Tamil Nadu': {
+    'Chennai': ['T Nagar', 'Anna Nagar', 'Adyar', 'Velachery'],
+    'Coimbatore': ['RS Puram', 'Saibaba Colony', 'Peelamedu', 'Town Hall'],
+    'Madurai': ['KK Nagar', 'West Masi Street', 'Periyar', 'Bypass Road'],
+    'Salem': ['Shevapet', 'Mettur', 'Alagapuram', 'Sowcarpet']
+  },
+  Telangana: {
+    'Hyderabad': ['Gachibowli', 'Madhapur', 'Banjara Hills', 'Secunderabad'],
+    'Warangal': ['Hanamkonda', 'Rajeev Nagar', 'Ashoknagar', 'Kazipet'],
+    'Nizamabad': ['Ravindra Nagar', 'Nizam College', 'Indiranagar', 'Police Lines'],
+    'Secunderabad': ['Madhura Nagar', 'Trimulgherry', 'Sainikpuri', 'West Marredpally']
+  },
+  Tripura: {
+    'Agartala': ['Maharani', 'Banamalipur', 'Dhaleswar', 'Kunjaban'],
+    'Udaipur': ['Udaipur Town', 'Khowai', 'Teliamura', 'Kumarghat'],
+    'Khowai': ['Khowai Town', 'Mungiakami', 'Teliamura', 'Kalyanpur'],
+    'Dharmanagar': ['Dharmanagar Town', 'Kanchanpur', 'Ambassa', 'Kumarghat']
+  },
+  'Uttar Pradesh': {
+    'Lucknow': ['Hazratganj', 'Aliganj', 'Indira Nagar', 'Aashiana'],
+    'Kanpur': ['Shivala', 'Kidwai Nagar', 'Civil Lines', 'Moti Nagar'],
+    'Varanasi': ['Assi', 'Bhelupur', 'Sigra', 'Lanka'],
+    'Agra': ['Sikandra', 'Dayalbagh', 'Tajganj', 'Civil Lines']
+  },
+  Uttarakhand: {
+    'Dehradun': ['Rajpur Road', 'Clement Town', 'Dalanwala', 'Vasant Vihar'],
+    'Haridwar': ['Har Ki Pauri', 'Rishikesh Road', 'Bhagwanpur', 'Shivaji Colony'],
+    'Rishikesh': ['Tapovan', 'Lakshman Jhula', 'Muni Ki Reti', 'Shivpuri'],
+    'Haldwani': ['Lalkuan', 'Kathgodam', 'Bhimtal', 'Rampur']
+  },
+  'West Bengal': {
+    'Kolkata': ['Salt Lake', 'Park Street', 'Howrah Bridge', 'Gariahat'],
+    'Howrah': ['Liluah', 'Belur', 'Bally', 'Konnagar'],
+    'Durgapur': ['City Centre', 'Rajarhat', 'Asansol Road', 'Sankrail'],
+    'Asansol': ['Burnpur', 'Rupnarayanpur', 'Kulti', 'Madhabpur']
+  },
+  'Andaman and Nicobar Islands': {
+    'Port Blair': ['Aberdeen Bazaar', 'Bharatpur', 'Junglighat', 'Shadipur'],
+    'Car Nicobar': ['Car Nicobar Town', 'Nancowry', 'Kakana', 'Macy'],
+    'Havelock Island': ['Beach Road', 'Govind Nagar', 'Radhanagar', 'Elephant Beach'],
+    'Neil Island': ['Bharatpur', 'Laxmanpur', 'Sitapur', 'Neill Island']
+  },
+  Chandigarh: {
+    'Chandigarh': ['Sector 17', 'Sector 22', 'Manimajra', 'Madhya Marg']
+  },
+  'Dadra and Nagar Haveli and Daman and Diu': {
+    'Silvassa': ['Silvassa Town', 'Amli', 'Dharampur', 'Vapi Road'],
+    'Daman': ['Moti Daman', 'Nani Daman', 'Kachigam', 'Jampore'],
+    'Diu': ['Diu Town', 'Nagoa', 'Ghoghla', 'Vanakbara']
+  },
+  Delhi: {
+    'New Delhi': ['Connaught Place', 'Dwarka Sector 8', 'Rohini Sector 14', 'Karol Bagh'],
+    'Dwarka': ['Sector 6', 'Sector 12', 'Sector 17', 'Sector 21'],
+    'Rohini': ['Sector 3', 'Sector 9', 'Sector 14', 'Sector 24'],
+    'Karol Bagh': ['Pusa Road', 'Bajardi', 'Dev Nagar', 'Arya Samaj Road']
+  },
+  'Jammu and Kashmir': {
+    'Srinagar': ['Lal Chowk', 'Rajbagh', 'Shaltang', 'Nigeen'],
+    'Jammu': ['Gandhinagar', 'Trikuta Nagar', 'Bantalab', 'Muthi'],
+    'Anantnag': ['Anantnag Town', 'Pahalgam Road', 'Bijbehara', 'Baba'],
+    'Baramulla': ['Sopore', 'Uri', 'Wagoora', 'Tangmarg']
+  },
+  Ladakh: {
+    'Leh': ['Main Market', 'Skara', 'Changspa', 'Khalsti'],
+    'Kargil': ['Kargil Town', 'Drass', 'Sankoo', 'Zanskar'],
+    'Diskit': ['Diskit Town', 'Saspol', 'Turtuk', 'Hunder'],
+    'Padum': ['Padum Town', 'Zanskar', 'Penzila', 'Tingmosgang']
+  },
+  Lakshadweep: {
+    'Kavaratti': ['Kavaratti Town', 'Andrott', 'Minicoy', 'Agatti'],
+    'Agatti': ['Agatti Town', 'Bangaram', 'South Island', 'North Island'],
+    'Minicoy': ['Minicoy Town', 'Mullin', 'Maharaja', 'West Island'],
+    'Andrott': ['Andrott Town', 'West Andrott', 'East Andrott', 'Central Island']
+  },
+  Puducherry: {
+    'Puducherry': ['White Town', 'Villianur', 'Lawspet', 'Ariyankuppam'],
+    'Karaikal': ['Karaikal Town', 'T.R. Pattinam', 'Neravy', 'Sedar'],
+    'Mahe': ['Mahe Town', 'Palloor', 'Ayankunnu', 'Chalakkara'],
+    'Yanam': ['Yanam Town', 'Kothamangalam', 'Valluru', 'Konduru']
+  }
+};
+
 export default function RegisterPage() {
-  const { register: registerUser, sendOtp: sendOtpRequest, verifyOtp: verifyOtpRequest } = useAuth();
+  const { register: registerUser } = useAuth();
   const navigate = useNavigate();
   const [serverError, setServerError] = useState('');
-  const [infoMessage, setInfoMessage] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
-  const [phoneVerified, setPhoneVerified] = useState(false);
-  const [otpSending, setOtpSending] = useState(false);
-  const [otpVerifying, setOtpVerifying] = useState(false);
 
   const {
     register,
@@ -36,75 +331,27 @@ export default function RegisterPage() {
   } = useForm({
     defaultValues: {
       role: 'DONOR',
-      country: 'India'
+      country: 'India',
+      state: '',
+      city: '',
+      organization_type: 'Public',
+      organization_name: ''
     }
   });
 
   const selectedRole = watch('role');
-  const phoneValue = watch('phone');
-  const otpValue = watch('otp');
-
-  const handleSendOtp = async () => {
-    const phone = phoneValue?.trim();
-    const email = watch('email');
-
-    if (!phone) {
-      setServerError('Please enter your phone number before requesting OTP');
-      return;
-    }
-
-    setServerError('');
-    setInfoMessage('');
-    setOtpSending(true);
-
-    try {
-      const result = await sendOtpRequest({ phone, email });
-      setOtpSent(true);
-      setPhoneVerified(false);
-      setInfoMessage(result?.otp ? `OTP sent successfully. Demo OTP: ${result.otp}` : 'OTP sent successfully. Please enter the code from your SMS.');
-    } catch (error) {
-      const data = error?.response?.data;
-      setServerError(data?.message || error?.message || 'Unable to send OTP. Please try again.');
-    } finally {
-      setOtpSending(false);
-    }
-  };
-
-  const handleVerifyOtp = async () => {
-    const phone = phoneValue?.trim();
-    const otp = otpValue?.trim();
-
-    if (!phone || !otp) {
-      setServerError('Please enter the phone number and OTP to verify your account');
-      return;
-    }
-
-    setServerError('');
-    setOtpVerifying(true);
-
-    try {
-      await verifyOtpRequest({ phone, otp });
-      setPhoneVerified(true);
-      setInfoMessage('Phone number verified successfully. You can now create your account.');
-    } catch (error) {
-      const data = error?.response?.data;
-      setPhoneVerified(false);
-      setServerError(data?.message || error?.message || 'OTP verification failed. Please try again.');
-    } finally {
-      setOtpVerifying(false);
-    }
-  };
+  const selectedState = watch('state');
+  const selectedCity = watch('city');
+  const selectedOrganizationType = watch('organization_type');
+  const cityOptions = cityOptionsByState[selectedState] || [];
+  const selectedCityAreas = selectedState && selectedCity ? areaOptionsByStateCity[selectedState]?.[selectedCity] || [] : [];
+  const organizationNameOptions = organizationNamesByType[selectedOrganizationType] || [];
 
   const onSubmit = async (values) => {
     setServerError('');
 
-    if (!phoneVerified) {
-      setServerError('Please verify your phone number before creating the account.');
-      return;
-    }
-
     try {
-      const user = await registerUser({ ...values, otp: values.otp });
+      const user = await registerUser({ ...values });
       navigate(roleRedirects[user.role] || '/dashboard', { replace: true });
     } catch (error) {
       const data = error?.response?.data;
@@ -118,9 +365,9 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.14),transparent_25%),radial-gradient(circle_at_bottom_right,_rgba(14,165,233,0.12),transparent_26%),linear-gradient(180deg,#f8fffb_0%,#f3f7f4_100%)] text-slate-900 selection:bg-emerald-500 selection:text-slate-900">
-      <div className="mx-auto flex min-h-screen max-w-7xl items-center px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid w-full gap-6 lg:grid-cols-[1.1fr_1.4fr]">
-          <aside className="flex flex-col justify-between rounded-[32px] border border-emerald-100 bg-white/75 p-6 shadow-[0_25px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm sm:p-8">
+      <div className="mx-auto flex min-h-screen max-w-7xl items-center px-4 py-4 sm:px-6 lg:px-8">
+        <div className="grid w-full gap-4 lg:grid-cols-[1.1fr_1.4fr] lg:items-stretch">
+          <aside className="flex min-h-[520px] flex-col justify-between rounded-[32px] border border-emerald-100 bg-white/75 p-5 shadow-[0_25px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm sm:p-6 lg:p-8">
             <div>
               <Link to="/" className="inline-flex items-center gap-2.5 text-2xl font-black tracking-tight text-slate-900 group">
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-950 shadow-lg shadow-emerald-500/20 transition-transform duration-200 group-hover:scale-105">
@@ -162,7 +409,7 @@ export default function RegisterPage() {
             </div>
           </aside>
 
-          <div className="rounded-[32px] border border-slate-200 bg-white/85 p-5 shadow-[0_25px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm sm:p-8 lg:p-10">
+          <div className="flex min-h-[520px] flex-col justify-center rounded-[32px] border border-slate-200 bg-white/85 p-5 shadow-[0_25px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm sm:p-6 lg:p-8 xl:p-10">
             <div className="mb-6">
               <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">Your details</h2>
               <p className="mt-1 text-sm text-slate-500">Set up your account and start helping communities immediately.</p>
@@ -235,94 +482,77 @@ export default function RegisterPage() {
                   />
                 </Field>
 
-                <Field label="Phone number" error={errors.phone?.message}>
-                  <div className="flex gap-2">
-                    <input
-                      type="tel"
-                      className="input flex-1"
-                      placeholder="e.g. 9876543210"
-                      {...register('phone', { required: 'Phone number is required' })}
-                    />
-                    <button
-                      type="button"
-                      onClick={handleSendOtp}
-                      disabled={otpSending}
-                      className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-[11px] font-bold text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50"
+                <div className="sm:col-span-2">
+                  <Field label="Organization type" error={errors.organization_type?.message}>
+                    <select
+                      className="input appearance-none"
+                      {...register('organization_type', { required: 'Organization type is required' })}
                     >
-                      {otpSending ? 'Sending...' : otpSent ? 'Resend OTP' : 'Send OTP'}
-                    </button>
-                  </div>
-                </Field>
-
-                <Field label="6-digit OTP" error={errors.otp?.message}>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={6}
-                      className="input flex-1"
-                      placeholder="123456"
-                      {...register('otp', {
-                        pattern: { value: /^\d{6}$/, message: 'OTP must be 6 digits' }
-                      })}
-                    />
-                    <button
-                      type="button"
-                      onClick={handleVerifyOtp}
-                      disabled={otpVerifying || !otpValue || otpValue.length !== 6}
-                      className="rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-[11px] font-bold text-sky-700 transition hover:bg-sky-100 disabled:opacity-50"
-                    >
-                      {otpVerifying ? 'Verifying...' : phoneVerified ? 'Verified' : 'Verify'}
-                    </button>
-                  </div>
-                </Field>
+                      {organizationTypeOptions.map((type) => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
+                    </select>
+                  </Field>
+                </div>
 
                 <div className="sm:col-span-2">
                   <Field label="Organization / kitchen name" error={errors.organization_name?.message}>
-                    <input
-                      className="input"
-                      placeholder="e.g. Spice Garden Restaurant / Hope Foundation"
+                    <select
+                      className="input appearance-none"
                       {...register('organization_name', { required: 'Organization name is required' })}
-                    />
+                    >
+                      <option value="">Select {selectedOrganizationType.toLowerCase()} organization</option>
+                      {organizationNameOptions.map((name) => (
+                        <option key={name} value={name}>{name}</option>
+                      ))}
+                    </select>
                   </Field>
                 </div>
 
                 <div className="sm:col-span-2">
                   <Field label="Street address / area" error={errors.address?.message}>
-                    <input
-                      className="input"
-                      placeholder="e.g. 124 Sector 18, Commercial Belt"
+                    <select
+                      className="input appearance-none disabled:cursor-not-allowed disabled:bg-slate-100"
+                      disabled={!selectedCity || selectedCityAreas.length === 0}
                       {...register('address', { required: 'Address is required' })}
-                    />
+                    >
+                      <option value="">{selectedCity ? 'Select area' : 'Select a city first'}</option>
+                      {selectedCityAreas.map((area) => (
+                        <option key={area} value={area}>{area}</option>
+                      ))}
+                    </select>
                   </Field>
                 </div>
 
-                <Field label="City" error={errors.city?.message}>
-                  <input
-                    className="input"
-                    placeholder="e.g. Delhi / Noida"
-                    {...register('city', { required: 'City is required' })}
-                  />
+                <Field label="State" error={errors.state?.message}>
+                  <select
+                    className="input appearance-none"
+                    {...register('state', { required: 'State is required' })}
+                  >
+                    <option value="">Select state</option>
+                    {indianStates.map((state) => (
+                      <option key={state} value={state}>{state}</option>
+                    ))}
+                  </select>
                 </Field>
 
-                <Field label="State" error={errors.state?.message}>
-                  <input
-                    className="input"
-                    placeholder="e.g. Delhi / Uttar Pradesh"
-                    {...register('state', { required: 'State is required' })}
-                  />
+                <Field label="City" error={errors.city?.message}>
+                  <select
+                    className="input appearance-none disabled:cursor-not-allowed disabled:bg-slate-100"
+                    disabled={!selectedState || cityOptions.length === 0}
+                    {...register('city', { required: 'City is required' })}
+                  >
+                    <option value="">{selectedState ? 'Select city' : 'Select a state first'}</option>
+                    {cityOptions.map((city) => (
+                      <option key={city} value={city}>{city}</option>
+                    ))}
+                  </select>
                 </Field>
               </div>
 
               {serverError && (
                 <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
                   {serverError}
-                </div>
-              )}
-
-              {infoMessage && (
-                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-                  {infoMessage}
                 </div>
               )}
 

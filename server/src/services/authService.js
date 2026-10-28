@@ -31,7 +31,7 @@ function generateOtp() {
 }
 
 function pickProfileUpdates(input) {
-  return {
+  const updates = {
     name: input.name,
     phone: input.phone,
     organization_name: input.organization_name,
@@ -40,6 +40,10 @@ function pickProfileUpdates(input) {
     state: input.state,
     profile_image: input.profile_image
   };
+
+  return Object.fromEntries(
+    Object.entries(updates).filter(([, value]) => value !== undefined && value !== null && String(value).trim() !== '')
+  );
 }
 
 export function createAuthService(dependencies = {}) {
@@ -189,14 +193,6 @@ export function createAuthService(dependencies = {}) {
       if (!email) {
         throw new AppError('Email is required', 400);
       }
-      if (!phone) {
-        throw new AppError('Phone number is required', 400);
-      }
-      if (!payload.otp) {
-        throw new AppError('OTP verification is required before registration', 403);
-      }
-
-      await this.verifyOtp({ phone, otp: payload.otp }, { preserveOtp: true });
 
       const existingUser = await repository.findUserByEmail(email);
       if (existingUser) {
@@ -218,7 +214,9 @@ export function createAuthService(dependencies = {}) {
       });
 
       const createdUser = await repository.findUserById(userId);
-      await otpStore.deleteByPhone(phone);
+      if (phone) {
+        await otpStore.deleteByPhone(phone);
+      }
       const token = createToken(createdUser, getJwtSecret(), tokenExpiresIn);
 
       return {

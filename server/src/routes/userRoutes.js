@@ -11,7 +11,7 @@ const profileValidation = [
   body('address').optional().trim().notEmpty().withMessage('Address cannot be empty'),
   body('city').optional().trim().notEmpty().withMessage('City cannot be empty'),
   body('state').optional().trim().notEmpty().withMessage('State cannot be empty'),
-  body('profile_image').optional().trim().isURL().withMessage('Profile image must be a valid URL')
+  body('profile_image').optional().trim().isLength({ min: 1 }).withMessage('Profile image is invalid')
 ];
 
 export function createUserRoutes(dependencies = {}) {

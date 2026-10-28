@@ -38,9 +38,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.16),transparent_25%),radial-gradient(circle_at_bottom_right,_rgba(14,165,233,0.12),transparent_26%),linear-gradient(180deg,#f8fffb_0%,#f3f7f4_100%)] text-slate-900 selection:bg-emerald-500 selection:text-slate-900">
-      <div className="mx-auto flex min-h-screen max-w-7xl items-center px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid w-full gap-6 lg:grid-cols-[1.05fr_1.15fr]">
-          <aside className="flex flex-col justify-between rounded-[32px] border border-emerald-100 bg-white/80 p-6 shadow-[0_25px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm sm:p-8">
+      <div className="mx-auto flex min-h-screen max-w-7xl items-center px-4 py-4 sm:px-6 lg:px-8">
+        <div className="grid w-full gap-4 lg:grid-cols-[1.05fr_1.15fr] lg:items-stretch">
+          <aside className="flex min-h-[520px] flex-col justify-between rounded-[32px] border border-emerald-100 bg-white/80 p-5 shadow-[0_25px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm sm:p-6 lg:p-8">
             <div>
               <Link to="/" className="inline-flex items-center gap-2.5 text-2xl font-black tracking-tight text-slate-900 group">
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-950 shadow-lg shadow-emerald-500/20 transition-transform duration-200 group-hover:scale-105">
@@ -81,7 +81,7 @@ export default function LoginPage() {
             </div>
           </aside>
 
-          <div className="rounded-[32px] border border-slate-200 bg-white/85 p-6 shadow-[0_25px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm sm:p-8 lg:p-10">
+          <div className="flex min-h-[520px] flex-col justify-center rounded-[32px] border border-slate-200 bg-white/85 p-5 shadow-[0_25px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm sm:p-6 lg:p-8 xl:p-10">
             <div className="mb-6">
               <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">Welcome back</h2>
               <p className="mt-1 text-sm text-slate-500">Sign in to continue helping communities and reducing food waste.</p>
