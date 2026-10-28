@@ -24,12 +24,24 @@ const loginValidation = [
   body('password').notEmpty().withMessage('Password is required')
 ];
 
+const sendOtpValidation = [
+  body('phone').trim().notEmpty().withMessage('Phone number is required'),
+  body('email').optional({ nullable: true }).trim().isEmail().withMessage('Valid email is required').normalizeEmail()
+];
+
+const verifyOtpValidation = [
+  body('phone').trim().notEmpty().withMessage('Phone number is required'),
+  body('otp').trim().isLength({ min: 6, max: 6 }).withMessage('OTP must be exactly 6 digits')
+];
+
 export function createAuthRoutes(dependencies = {}) {
   const controller = dependencies.authController || authController;
   const middleware = dependencies.authMiddleware || authMiddleware;
 
   const router = Router();
 
+  router.post('/send-otp', sendOtpValidation, validateRequest, controller.sendOtp);
+  router.post('/verify-otp', verifyOtpValidation, validateRequest, controller.verifyOtp);
   router.post('/register', registerValidation, validateRequest, controller.register);
   router.post('/login', loginValidation, validateRequest, controller.login);
   router.get('/me', middleware, controller.me);

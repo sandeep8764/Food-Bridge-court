@@ -54,29 +54,27 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/75 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8">
-        {/* Logo */}
         <div className="flex items-center gap-6">
-          <Link to="/" className="flex items-center gap-2.5 text-xl font-black tracking-tight text-white group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 text-slate-950 shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition transform">
+          <Link to="/" className="flex items-center gap-2.5 text-xl font-black tracking-tight text-slate-900 group">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-950 shadow-lg shadow-emerald-500/20 transition-transform duration-200 group-hover:scale-105">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <span>Food<span className="text-emerald-400">Bridge</span></span>
+            <span>Food<span className="text-emerald-600">Bridge</span></span>
           </Link>
 
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1.5 text-sm font-medium">
             {currentNavItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`rounded-lg px-3 py-1.5 transition ${
+                className={`rounded-xl px-3 py-1.5 transition ${
                   isActive(item.path)
-                    ? 'bg-emerald-500/15 text-emerald-400 font-semibold'
-                    : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+                    ? 'bg-emerald-50 text-emerald-700 font-semibold'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                 }`}
               >
                 {item.name}
@@ -85,13 +83,12 @@ export default function Navbar() {
           </nav>
         </div>
 
-        {/* User profile / Actions */}
         <div className="hidden md:flex items-center gap-3">
           {user ? (
             <div className="flex items-center gap-3">
               <span
                 className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider ${
-                  roleBadgeColors[user.role] || 'bg-slate-800 text-slate-300 border-slate-700'
+                  roleBadgeColors[user.role] || 'bg-slate-100 text-slate-700 border-slate-200'
                 }`}
               >
                 {user.role}
@@ -99,9 +96,9 @@ export default function Navbar() {
 
               <Link
                 to="/profile"
-                className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/60 px-3 py-1.5 text-sm font-medium text-slate-200 hover:border-slate-700 hover:text-white transition"
+                className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-emerald-200 hover:text-slate-900"
               >
-                <div className="h-6 w-6 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-xs font-bold uppercase">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold uppercase text-emerald-700">
                   {user.name?.charAt(0) || 'U'}
                 </div>
                 <span className="max-w-[120px] truncate">{user.name}</span>
@@ -109,7 +106,7 @@ export default function Navbar() {
 
               <button
                 onClick={logout}
-                className="rounded-xl border border-slate-800 bg-slate-900/60 px-3.5 py-1.5 text-sm font-medium text-slate-400 hover:bg-rose-500/10 hover:border-rose-500/40 hover:text-rose-300 transition"
+                className="rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-sm font-medium text-slate-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
               >
                 Logout
               </button>
@@ -118,13 +115,13 @@ export default function Navbar() {
             <div className="flex items-center gap-2.5">
               <Link
                 to="/login"
-                className="rounded-xl px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition"
+                className="rounded-xl px-4 py-2 text-sm font-medium text-slate-600 transition hover:text-slate-900"
               >
                 Sign In
               </Link>
               <Link
                 to="/register"
-                className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-emerald-400 shadow-lg shadow-emerald-500/20 transition"
+                className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:from-emerald-400 hover:to-teal-400"
               >
                 Get Started
               </Link>
@@ -132,11 +129,10 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile menu button */}
         <div className="md:hidden">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="rounded-xl p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition"
+            className="rounded-xl p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition"
             aria-label="Toggle navigation menu"
           >
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -150,9 +146,8 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-800 bg-slate-950 px-4 pt-3 pb-6 space-y-3 animate-fade-in">
+        <div className="md:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-6 space-y-3">
           <nav className="flex flex-col gap-1">
             {currentNavItems.map((item) => (
               <Link
@@ -161,8 +156,8 @@ export default function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
                 className={`rounded-xl px-3.5 py-2.5 text-sm font-medium transition ${
                   isActive(item.path)
-                    ? 'bg-emerald-500/15 text-emerald-400 font-semibold'
-                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                    ? 'bg-emerald-50 text-emerald-700 font-semibold'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                 }`}
               >
                 {item.name}
@@ -170,11 +165,11 @@ export default function Navbar() {
             ))}
           </nav>
 
-          <div className="border-t border-slate-800 pt-3">
+          <div className="border-t border-slate-200 pt-3">
             {user ? (
               <div className="space-y-2">
                 <div className="flex items-center justify-between px-3 py-2">
-                  <div className="text-sm font-medium text-slate-200">{user.name}</div>
+                  <div className="text-sm font-medium text-slate-700">{user.name}</div>
                   <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold uppercase ${roleBadgeColors[user.role]}`}>
                     {user.role}
                   </span>
@@ -182,13 +177,13 @@ export default function Navbar() {
                 <Link
                   to="/profile"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block rounded-xl px-3.5 py-2 text-sm text-slate-300 hover:bg-slate-800"
+                  className="block rounded-xl px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-100"
                 >
                   My Profile
                 </Link>
                 <button
                   onClick={() => { setMobileMenuOpen(false); logout(); }}
-                  className="w-full text-left rounded-xl px-3.5 py-2 text-sm text-rose-400 hover:bg-rose-500/10"
+                  className="w-full text-left rounded-xl px-3.5 py-2 text-sm text-rose-600 hover:bg-rose-50"
                 >
                   Logout
                 </button>
@@ -198,14 +193,14 @@ export default function Navbar() {
                 <Link
                   to="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="w-full rounded-xl border border-slate-800 bg-slate-900 py-2.5 text-center text-sm font-medium text-slate-200"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 text-center text-sm font-medium text-slate-700"
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/register"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="w-full rounded-xl bg-emerald-500 py-2.5 text-center text-sm font-semibold text-slate-950"
+                  className="w-full rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 py-2.5 text-center text-sm font-semibold text-slate-950"
                 >
                   Get Started
                 </Link>

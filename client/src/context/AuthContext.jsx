@@ -51,6 +51,16 @@ export function AuthProvider({ children }) {
     return loggedInUser;
   };
 
+  const sendOtp = async (payload) => {
+    const response = await api.post('/auth/send-otp', payload);
+    return response.data.data;
+  };
+
+  const verifyOtp = async (payload) => {
+    const response = await api.post('/auth/verify-otp', payload);
+    return response.data.data;
+  };
+
   const register = async (payload) => {
     const response = await api.post('/auth/register', payload);
     const { token: authToken, user: registeredUser } = response.data.data;
@@ -76,7 +86,7 @@ export function AuthProvider({ children }) {
   };
 
   const value = useMemo(
-    () => ({ user, token, loading, login, register, logout, refreshUser, setUser }),
+    () => ({ user, token, loading, login, sendOtp, verifyOtp, register, logout, refreshUser, setUser }),
     [user, token, loading]
   );
 

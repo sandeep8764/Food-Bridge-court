@@ -12,6 +12,58 @@ const TASK_SELECT_COLUMNS = `
   status
 `;
 
+const TASK_DETAIL_SELECT_COLUMNS = `
+  t.id,
+  t.donation_id,
+  t.volunteer_id,
+  t.claim_id,
+  t.assigned_at,
+  t.accepted_at,
+  t.picked_up_at,
+  t.delivered_at,
+  t.status,
+  d.food_name,
+  d.food_category,
+  d.quantity,
+  d.quantity_unit,
+  d.estimated_meals,
+  d.expiry_time,
+  d.address AS pickup_address,
+  d.city AS pickup_city,
+  d.state AS pickup_state,
+  d.latitude AS pickup_latitude,
+  d.longitude AS pickup_longitude,
+  du.id AS donor_id,
+  du.name AS donor_name,
+  du.email AS donor_email,
+  du.phone AS donor_phone,
+  du.organization_name AS donor_organization_name,
+  c.ngo_id,
+  ngo.name AS ngo_name,
+  ngo.email AS ngo_email,
+  ngo.organization_name AS ngo_organization_name,
+  ngo.phone AS ngo_phone,
+  ngo.address AS ngo_address,
+  ngo.city AS ngo_city,
+  ngo.state AS ngo_state,
+  v.name AS volunteer_name,
+  v.email AS volunteer_email,
+  v.phone AS volunteer_phone
+`;
+
+function buildTaskDetailsQuery(whereClause = '', orderByClause = 't.assigned_at DESC') {
+  return `SELECT
+    ${TASK_DETAIL_SELECT_COLUMNS}
+  FROM volunteer_tasks t
+  INNER JOIN donations d ON d.id = t.donation_id
+  INNER JOIN users du ON du.id = d.donor_id
+  LEFT JOIN donation_claims c ON c.id = t.claim_id
+  LEFT JOIN users ngo ON ngo.id = c.ngo_id
+  LEFT JOIN users v ON v.id = t.volunteer_id
+  ${whereClause}
+  ORDER BY ${orderByClause}`;
+}
+
 export async function createTask(taskData, connection = pool) {
   const [result] = await connection.execute(
     `INSERT INTO volunteer_tasks (
@@ -37,50 +89,7 @@ export async function findTaskById(id, connection = pool) {
 
 export async function findTaskDetailsById(id, connection = pool) {
   const [rows] = await connection.query(
-    `SELECT
-      t.id,
-      t.donation_id,
-      t.volunteer_id,
-      t.claim_id,
-      t.assigned_at,
-      t.accepted_at,
-      t.picked_up_at,
-      t.delivered_at,
-      t.status,
-      d.food_name,
-      d.food_category,
-      d.quantity,
-      d.quantity_unit,
-      d.estimated_meals,
-      d.expiry_time,
-      d.address AS pickup_address,
-      d.city AS pickup_city,
-      d.state AS pickup_state,
-      d.latitude AS pickup_latitude,
-      d.longitude AS pickup_longitude,
-      du.id AS donor_id,
-      du.name AS donor_name,
-      du.email AS donor_email,
-      du.phone AS donor_phone,
-      du.organization_name AS donor_organization_name,
-      c.ngo_id,
-      ngo.name AS ngo_name,
-      ngo.email AS ngo_email,
-      ngo.organization_name AS ngo_organization_name,
-      ngo.phone AS ngo_phone,
-      ngo.address AS ngo_address,
-      ngo.city AS ngo_city,
-      ngo.state AS ngo_state,
-      v.name AS volunteer_name,
-      v.email AS volunteer_email,
-      v.phone AS volunteer_phone
-    FROM volunteer_tasks t
-    INNER JOIN donations d ON d.id = t.donation_id
-    INNER JOIN users du ON du.id = d.donor_id
-    LEFT JOIN donation_claims c ON c.id = t.claim_id
-    LEFT JOIN users ngo ON ngo.id = c.ngo_id
-    LEFT JOIN users v ON v.id = t.volunteer_id
-    WHERE t.id = ?
+    `${buildTaskDetailsQuery('WHERE t.id = ?', 't.assigned_at DESC')}
     LIMIT 1`,
     [id]
   );
@@ -90,9 +99,23 @@ export async function findTaskDetailsById(id, connection = pool) {
 
 export async function listTasksByVolunteer(volunteerId, connection = pool) {
   const [rows] = await connection.query(
-    `SELECT ${TASK_SELECT_COLUMNS} FROM volunteer_tasks WHERE volunteer_id = ? ORDER BY assigned_at DESC`,
+    `${buildTaskDetailsQuery('WHERE t.volunteer_id = ?')}`,
     [volunteerId]
   );
+  return rows;
+}
+
+export async function listTasksByNgo(ngoId, connection = pool) {
+  const [rows] = await connection.query(
+    `${buildTaskDetailsQuery('WHERE c.ngo_id = ?')}`,
+    [ngoId]
+  );
+
+  return rows;
+}
+
+export async function listTasks(connection = pool) {
+  const [rows] = await connection.query(buildTaskDetailsQuery());
   return rows;
 }
 

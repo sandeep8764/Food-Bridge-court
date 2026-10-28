@@ -90,7 +90,21 @@ function createInMemoryTaskModel() {
       return task ? { ...task, food_name: task.food_name || 'Seed Meal', food_category: task.food_category || 'Cooked Meals', quantity: task.quantity || 20, quantity_unit: task.quantity_unit || 'boxes', estimated_meals: task.estimated_meals || 60, expiry_time: task.expiry_time || '2026-09-23 10:00:00', pickup_address: task.pickup_address || 'Delhi', donor_name: 'Donor One', donor_email: 'donor@test.com', donor_phone: '9999999999', donor_organization_name: 'Seed Org', ngo_organization_name: 'Ngo Org', volunteer_name: 'Volunteer One' } : null;
     },
     async listTasksByVolunteer(volunteerId) {
-      return [...tasks.values()].filter((task) => task.volunteer_id === volunteerId);
+      return Promise.all(
+        [...tasks.values()]
+          .filter((task) => task.volunteer_id === volunteerId)
+          .map((task) => this.findTaskDetailsById(task.id))
+      );
+    },
+    async listTasksByNgo(ngoId) {
+      return Promise.all(
+        [...tasks.values()]
+          .filter((task) => task.ngo_id === ngoId)
+          .map((task) => this.findTaskDetailsById(task.id))
+      );
+    },
+    async listTasks() {
+      return Promise.all([...tasks.values()].map((task) => this.findTaskDetailsById(task.id)));
     },
     async findTaskByDonationId(donationId) {
       return [...tasks.values()].find((task) => task.donation_id === donationId) || null;
@@ -135,7 +149,7 @@ test('task assignment, accept, pickup, and delivery flow works', async () => {
 
   donationModel.seed({ id: 1, donor_id: 10, status: 'CLAIMED', estimated_meals: 60 });
   donationModel.seed({ id: 2, donor_id: 10, status: 'CLAIMED', estimated_meals: 60 });
-  taskModel.seed({ id: 1, donation_id: 1, claim_id: 5, volunteer_id: 3, status: 'ASSIGNED', assigned_at: new Date().toISOString() });
+  taskModel.seed({ id: 1, donation_id: 1, claim_id: 5, ngo_id: 2, volunteer_id: 3, status: 'ASSIGNED', assigned_at: new Date().toISOString() });
 
   const app = buildApp({ userModel, donationModel, taskModel });
   const volunteerToken = signToken(3, 'VOLUNTEER');
@@ -175,12 +189,21 @@ test('task assignment, accept, pickup, and delivery flow works', async () => {
     .set('Authorization', `Bearer ${volunteerToken}`);
 
   assert.equal(listResponse.status, 200);
+  assert.equal(listResponse.body.data[0].food_name, 'Seed Meal');
+  assert.equal(listResponse.body.data[0].pickup_address, 'Delhi');
 
   const detailsResponse = await request(app)
     .get('/api/tasks/1')
     .set('Authorization', `Bearer ${volunteerToken}`);
 
   assert.equal(detailsResponse.status, 200);
+
+  const ngoListResponse = await request(app)
+    .get('/api/tasks')
+    .set('Authorization', `Bearer ${signToken(2, 'NGO')}`);
+
+  assert.equal(ngoListResponse.status, 200);
+  assert.equal(ngoListResponse.body.data[0].ngo_organization_name, 'Ngo Org');
 
   const adminAssign = await request(app)
     .post('/api/tasks/2/accept')

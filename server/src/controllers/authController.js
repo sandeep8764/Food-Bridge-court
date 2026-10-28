@@ -4,6 +4,24 @@ export function createAuthController(dependencies = {}) {
   const authService = dependencies.authService || defaultAuthService;
 
   return {
+    async sendOtp(req, res, next) {
+      try {
+        const result = await authService.sendOtp(req.body);
+        res.status(200).json({ success: true, data: result });
+      } catch (error) {
+        next(error);
+      }
+    },
+
+    async verifyOtp(req, res, next) {
+      try {
+        const result = await authService.verifyOtp(req.body);
+        res.status(200).json({ success: true, data: result });
+      } catch (error) {
+        next(error);
+      }
+    },
+
     async register(req, res, next) {
       try {
         const result = await authService.register(req.body);

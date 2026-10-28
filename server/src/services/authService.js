@@ -8,15 +8,26 @@ import {
   findUserById,
   updateUserProfile
 } from '../models/userModel.js';
+import { otpModel as defaultOtpModel } from '../models/otpModel.js';
 
 const PUBLIC_ROLES = new Set(['DONOR', 'NGO', 'SHELTER', 'VOLUNTEER']);
+const OTP_TTL_MS = 5 * 60 * 1000;
+const OTP_RESEND_COOLDOWN_MS = 60 * 1000;
 
 function createToken(user, jwtSecret, expiresIn) {
   return jwt.sign({ userId: user.id, role: user.role }, jwtSecret, { expiresIn });
 }
 
 function normalizeEmail(email) {
-  return email.trim().toLowerCase();
+  return String(email || '').trim().toLowerCase();
+}
+
+function normalizePhone(phone) {
+  return String(phone || '').trim();
+}
+
+function generateOtp() {
+  return String(Math.floor(100000 + Math.random() * 900000));
 }
 
 function pickProfileUpdates(input) {
@@ -41,15 +52,151 @@ export function createAuthService(dependencies = {}) {
   const getJwtSecret = () => dependencies.jwtSecret || process.env.JWT_SECRET || 'foodbridge_default_secure_jwt_secret_2026';
   const tokenExpiresIn = dependencies.tokenExpiresIn || '7d';
   const passwordHasher = dependencies.passwordHasher || bcrypt;
+  const defaultOtpStore = {
+    async create({ phone, otpCode, expiresAt, attempts = 0 }) {
+      const record = await defaultOtpModel.createOtpVerification({
+        phone,
+        otp_code: otpCode,
+        expires_at: expiresAt,
+        attempts
+      });
+      if (!record) {
+        return null;
+      }
+      return {
+        phone: record.phone,
+        otpCode: record.otp_code,
+        expiresAt: record.expires_at,
+        attempts: record.attempts,
+        createdAt: record.created_at
+      };
+    },
+    async findByPhone(phone) {
+      const record = await defaultOtpModel.findOtpByPhone(phone);
+      if (!record) {
+        return null;
+      }
+      return {
+        phone: record.phone,
+        otpCode: record.otp_code,
+        expiresAt: record.expires_at,
+        attempts: record.attempts,
+        createdAt: record.created_at
+      };
+    },
+    async updateAttempts(phone, attempts) {
+      const record = await defaultOtpModel.updateOtpAttempts(phone, attempts);
+      if (!record) {
+        return null;
+      }
+      return {
+        phone: record.phone,
+        otpCode: record.otp_code,
+        expiresAt: record.expires_at,
+        attempts: record.attempts,
+        createdAt: record.created_at
+      };
+    },
+    async deleteByPhone(phone) {
+      return defaultOtpModel.deleteOtpByPhone(phone);
+    }
+  };
+  const otpStore = dependencies.otpStore || defaultOtpStore;
 
   return {
+    async sendOtp(payload) {
+      const phone = normalizePhone(payload.phone);
+      if (!phone) {
+        throw new AppError('Phone number is required', 400);
+      }
+
+      const email = normalizeEmail(payload.email || '');
+      if (email) {
+        const existingUser = await repository.findUserByEmail(email);
+        if (existingUser && String(existingUser.phone || '').trim() !== phone) {
+          throw new AppError('Email is already linked to a different phone number', 409);
+        }
+      }
+
+      const currentOtp = await otpStore.findByPhone(phone);
+      if (currentOtp) {
+        const createdAt = new Date(currentOtp.createdAt).getTime();
+        const resendCooldownLeft = createdAt + OTP_RESEND_COOLDOWN_MS - Date.now();
+        if (resendCooldownLeft > 0) {
+          throw new AppError('Please wait a moment before requesting a new OTP', 429);
+        }
+      }
+
+      const otpCode = generateOtp();
+      const expiresAt = new Date(Date.now() + OTP_TTL_MS).toISOString();
+      await otpStore.create({ phone, otpCode, expiresAt });
+
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`OTP debug for ${phone}: ${otpCode}`);
+      }
+
+      return {
+        message: 'OTP sent successfully',
+        expiresInSeconds: Math.round(OTP_TTL_MS / 1000),
+        otp: process.env.NODE_ENV !== 'production' ? otpCode : undefined
+      };
+    },
+
+    async verifyOtp(payload, options = {}) {
+      const phone = normalizePhone(payload.phone);
+      const otp = String(payload.otp || '').trim();
+      const preserveOtp = options.preserveOtp ?? true;
+
+      if (!phone) {
+        throw new AppError('Phone number is required', 400);
+      }
+      if (!otp) {
+        throw new AppError('OTP is required', 400);
+      }
+
+      const currentOtp = await otpStore.findByPhone(phone);
+      if (!currentOtp) {
+        throw new AppError('OTP expired or not found', 400);
+      }
+
+      if (String(currentOtp.otpCode) !== otp) {
+        const nextAttempts = Number(currentOtp.attempts || 0) + 1;
+        await otpStore.updateAttempts(phone, nextAttempts);
+        if (nextAttempts >= 5) {
+          await otpStore.deleteByPhone(phone);
+        }
+        throw new AppError('Invalid OTP', 401);
+      }
+
+      if (!preserveOtp) {
+        await otpStore.deleteByPhone(phone);
+      }
+      return {
+        message: 'Phone number verified successfully',
+        phone
+      };
+    },
+
     async register(payload) {
       const email = normalizeEmail(payload.email);
+      const phone = normalizePhone(payload.phone);
       const role = String(payload.role || '').toUpperCase();
 
       if (!PUBLIC_ROLES.has(role)) {
         throw new AppError('Invalid role for public registration', 400);
       }
+
+      if (!email) {
+        throw new AppError('Email is required', 400);
+      }
+      if (!phone) {
+        throw new AppError('Phone number is required', 400);
+      }
+      if (!payload.otp) {
+        throw new AppError('OTP verification is required before registration', 403);
+      }
+
+      await this.verifyOtp({ phone, otp: payload.otp }, { preserveOtp: true });
 
       const existingUser = await repository.findUserByEmail(email);
       if (existingUser) {
@@ -61,7 +208,7 @@ export function createAuthService(dependencies = {}) {
         name: payload.name.trim(),
         email,
         password_hash: passwordHash,
-        phone: payload.phone?.trim() || null,
+        phone,
         role,
         organization_name: payload.organization_name?.trim() || null,
         address: payload.address?.trim() || null,
@@ -71,6 +218,7 @@ export function createAuthService(dependencies = {}) {
       });
 
       const createdUser = await repository.findUserById(userId);
+      await otpStore.deleteByPhone(phone);
       const token = createToken(createdUser, getJwtSecret(), tokenExpiresIn);
 
       return {

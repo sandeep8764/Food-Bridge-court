@@ -26,16 +26,22 @@ export default function VolunteerDashboardPage() {
   const totalMealsDelivered = completedTasks.reduce((sum, task) => sum + Number(task.estimated_meals || 0), 0);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.14),transparent_24%),radial-gradient(circle_at_top_right,_rgba(14,165,233,0.12),transparent_26%),linear-gradient(180deg,#f8fffb_0%,#f3f7f4_100%)] text-slate-900">
       <Navbar />
-      <main className="mx-auto max-w-7xl px-4 py-10">
-        <h1 className="text-3xl font-bold">Volunteer Dashboard</h1>
-        <p className="mt-2 text-slate-400">Track pickup tasks, active deliveries, and your delivery history.</p>
-        <div className="mt-4">
-          <Link to="/nearby-donations" className="rounded-xl border border-slate-700 px-4 py-3 font-semibold text-slate-200">View Nearby Donations</Link>
+      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="rounded-[28px] border border-amber-100 bg-white/80 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.06)] backdrop-blur-sm">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-amber-700">
+            Volunteer portal
+          </div>
+          <h1 className="mt-4 text-3xl font-black tracking-[-0.05em] text-slate-900">Volunteer Dashboard</h1>
+          <p className="mt-2 text-base text-slate-600">Track pickup tasks, active deliveries, and your delivery history.</p>
         </div>
 
-        {error && <div className="mt-4 rounded-2xl border border-red-500/40 bg-red-500/10 p-4 text-red-200">{error}</div>}
+        <div className="mt-5">
+          <Link to="/nearby-donations" className="inline-flex items-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:text-slate-900">View Nearby Donations</Link>
+        </div>
+
+        {error && <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">{error}</div>}
 
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <StatCard label="Active Tasks" value={activeTasks.length} />
@@ -43,10 +49,10 @@ export default function VolunteerDashboardPage() {
           <StatCard label="Total Meals Delivered" value={totalMealsDelivered} />
         </div>
 
-        <section className="mt-8 space-y-4">
-          <h2 className="text-xl font-semibold">Your Tasks</h2>
+        <section className="mt-8 space-y-4 rounded-[28px] border border-slate-200 bg-white/85 p-5 shadow-[0_20px_50px_rgba(15,23,42,0.06)]">
+          <h2 className="text-xl font-bold text-slate-900">Your Tasks</h2>
           {tasks.length === 0 ? (
-            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 text-slate-400">No tasks assigned yet.</div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 text-slate-600">No tasks assigned yet.</div>
           ) : (
             <div className="grid gap-4 lg:grid-cols-2">
               {tasks.map((task) => (
@@ -62,9 +68,9 @@ export default function VolunteerDashboardPage() {
 
 function StatCard({ label, value }) {
   return (
-    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6">
-      <p className="text-sm text-slate-400">{label}</p>
-      <p className="mt-2 text-3xl font-bold text-emerald-400">{value ?? 0}</p>
+    <div className="rounded-[24px] border border-slate-200 bg-white/85 p-6 shadow-[0_18px_45px_rgba(15,23,42,0.06)]">
+      <p className="text-sm font-medium text-slate-500">{label}</p>
+      <p className="mt-2 text-3xl font-black text-emerald-700">{value ?? 0}</p>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import app from './app.js';
 import { testDatabaseConnection } from './config/db.js';
 
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT) || 5001;
 
 async function startServer() {
   try {
@@ -11,8 +11,8 @@ async function startServer() {
     console.warn('⚠️  Please ensure MySQL is running on port', process.env.DB_PORT || 3306);
   }
 
-  app.listen(PORT, () => {
-    console.log(`🚀 FoodBridge REST API running at http://localhost:${PORT}`);
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 FoodBridge REST API running at http://0.0.0.0:${PORT}`);
   });
 }
 

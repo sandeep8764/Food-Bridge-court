@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(255) NOT NULL UNIQUE,
   password_hash VARCHAR(255),
   phone VARCHAR(20),
+  phone_verified_at TIMESTAMP NULL,
   role ENUM('DONOR', 'NGO', 'SHELTER', 'VOLUNTEER', 'ADMIN') NOT NULL,
   organization_name VARCHAR(150),
   address TEXT,
@@ -25,6 +26,17 @@ CREATE TABLE IF NOT EXISTS users (
   CHECK (role IN ('DONOR', 'NGO', 'SHELTER', 'VOLUNTEER', 'ADMIN')),
   CHECK (latitude IS NULL OR (latitude BETWEEN -90 AND 90)),
   CHECK (longitude IS NULL OR (longitude BETWEEN -180 AND 180))
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS otp_verifications (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  phone VARCHAR(20) NOT NULL,
+  otp_code VARCHAR(10) NOT NULL,
+  expires_at TIMESTAMP NOT NULL,
+  attempts INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  verified_at TIMESTAMP NULL,
+  UNIQUE KEY uniq_phone_otp (phone)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS donations (

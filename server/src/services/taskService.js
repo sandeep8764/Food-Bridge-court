@@ -7,9 +7,11 @@ import { IMPACT_FACTORS } from '../config/impactFactors.js';
 import { createImpactRecord, findImpactByDonationId } from '../models/impactModel.js';
 import {
   assignVolunteerTask,
+  listTasks as listAllTasks,
   findTaskByDonationId,
   findTaskById,
   findTaskDetailsById,
+  listTasksByNgo,
   listTasksByVolunteer,
   updateTaskStatus
 } from '../models/taskModel.js';
@@ -71,14 +73,52 @@ export function createTaskService(dependencies = {}) {
     findTaskById,
     findTaskDetailsById,
     listTasksByVolunteer,
+    listTasksByNgo,
+    listTasks: listAllTasks,
     findTaskByDonationId,
     updateTaskStatus
   };
 
+  async function resolveDetailedTasks(taskListPromise, detailFetcher) {
+    const tasks = await taskListPromise;
+
+    if (tasks.length === 0) {
+      return tasks;
+    }
+
+    if (tasks[0].food_name !== undefined) {
+      return tasks;
+    }
+
+    if (typeof detailFetcher !== 'function') {
+      return tasks;
+    }
+
+    const detailedTasks = await Promise.all(tasks.map(async (task) => detailFetcher(task.id)));
+    return detailedTasks.filter(Boolean);
+  }
+
   return {
     async listTasks(user) {
       if (user.role === 'VOLUNTEER') {
-        return taskRepository.listTasksByVolunteer(user.id);
+        return resolveDetailedTasks(
+          taskRepository.listTasksByVolunteer(user.id),
+          taskRepository.findTaskDetailsById
+        );
+      }
+
+      if (user.role === 'NGO' || user.role === 'SHELTER') {
+        if (typeof taskRepository.listTasksByNgo === 'function') {
+          return taskRepository.listTasksByNgo(user.id);
+        }
+
+        return [];
+      }
+
+      if (user.role === 'ADMIN') {
+        return typeof taskRepository.listTasks === 'function'
+          ? taskRepository.listTasks()
+          : [];
       }
 
       if (!['ADMIN', 'NGO', 'SHELTER'].includes(user.role)) {

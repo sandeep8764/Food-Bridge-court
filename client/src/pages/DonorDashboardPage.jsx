@@ -32,13 +32,18 @@ export default function DonorDashboardPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.14),transparent_24%),radial-gradient(circle_at_top_right,_rgba(14,165,233,0.12),transparent_26%),linear-gradient(180deg,#f8fffb_0%,#f3f7f4_100%)] text-slate-900">
       <Navbar />
-      <main className="mx-auto max-w-7xl px-4 py-10">
-        <h1 className="text-3xl font-bold">Donor Dashboard</h1>
-        <p className="mt-2 text-slate-400">Track your donation activity and recent submissions.</p>
+      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="rounded-[28px] border border-emerald-100 bg-white/80 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.06)] backdrop-blur-sm">
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-700">
+            Donor portal
+          </div>
+          <h1 className="mt-4 text-3xl font-black tracking-[-0.05em] text-slate-900">Donor Dashboard</h1>
+          <p className="mt-2 text-base text-slate-600">Track donation activity, meals saved, and recent submissions in one place.</p>
+        </div>
 
-        {error && <div className="mt-4 rounded-2xl border border-red-500/40 bg-red-500/10 p-4 text-red-200">{error}</div>}
+        {error && <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">{error}</div>}
 
         {stats && (
           <>
@@ -54,13 +59,13 @@ export default function DonorDashboardPage() {
             </div>
 
             {monthly.length > 0 && (
-              <section className="mt-8">
+              <section className="mt-8 rounded-[28px] border border-slate-200 bg-white/85 p-5 shadow-[0_20px_50px_rgba(15,23,42,0.06)]">
                 <MonthlyAnalyticsChart data={monthly} />
               </section>
             )}
 
-            <section className="mt-8 rounded-3xl border border-slate-800 bg-slate-900 p-6">
-              <h2 className="text-xl font-semibold">Recent Donations</h2>
+            <section className="mt-8 rounded-[28px] border border-slate-200 bg-white/85 p-5 shadow-[0_20px_50px_rgba(15,23,42,0.06)]">
+              <h2 className="text-xl font-bold text-slate-900">Recent Donations</h2>
               <div className="mt-4">
                 <DonationTable donations={stats.recentDonations} />
               </div>

@@ -78,7 +78,9 @@ function createTestApp({ authRoutes, userRoutes, authMiddleware, userModel }) {
   app.use(express.json());
 
   app.use('/api/auth', authRoutes);
-  app.use('/api/users', userRoutes);
+  if (userRoutes) {
+    app.use('/api/users', userRoutes);
+  }
 
   app.get('/api/protected/donor', authMiddleware, authorizeRoles('DONOR'), (req, res) => {
     res.json({ success: true, data: { role: req.user.role } });
@@ -91,6 +93,88 @@ function createTestApp({ authRoutes, userRoutes, authMiddleware, userModel }) {
   return app;
 }
 
+function createInMemoryOtpStore() {
+  const otpEntries = new Map();
+
+  return {
+    async create({ phone, otpCode, expiresAt }) {
+      otpEntries.set(phone, { phone, otpCode, expiresAt, createdAt: new Date().toISOString(), attempts: 0 });
+      return otpEntries.get(phone);
+    },
+    async findByPhone(phone) {
+      const entry = otpEntries.get(phone);
+      if (!entry) {
+        return null;
+      }
+      if (new Date(entry.expiresAt).getTime() < Date.now()) {
+        otpEntries.delete(phone);
+        return null;
+      }
+      return { ...entry };
+    },
+    async deleteByPhone(phone) {
+      otpEntries.delete(phone);
+      return true;
+    },
+    async updateAttempts(phone, attempts) {
+      const entry = otpEntries.get(phone);
+      if (!entry) {
+        return null;
+      }
+      entry.attempts = attempts;
+      otpEntries.set(phone, entry);
+      return entry;
+    }
+  };
+}
+
+test('otp flow is required before registration', async () => {
+  const userModel = createInMemoryUserModel();
+  const otpStore = createInMemoryOtpStore();
+  const authService = createAuthService({
+    userModel,
+    otpStore,
+    jwtSecret: process.env.JWT_SECRET,
+    tokenExpiresIn: '7d'
+  });
+  const authController = createAuthController({ authService });
+  const authMiddleware = createAuthMiddleware({ userModel, jwtSecret: process.env.JWT_SECRET });
+  const authRoutes = createAuthRoutes({ authController, authMiddleware });
+  const app = createTestApp({ authRoutes, userRoutes: [], authMiddleware, userModel });
+
+  const sendOtpResponse = await request(app)
+    .post('/api/auth/send-otp')
+    .send({ phone: '9876543210', email: 'newuser@example.com' });
+
+  assert.equal(sendOtpResponse.status, 200);
+  assert.match(String(sendOtpResponse.body.data.otp), /^\d{6}$/);
+
+  const verifyOtpResponse = await request(app)
+    .post('/api/auth/verify-otp')
+    .send({ phone: '9876543210', otp: sendOtpResponse.body.data.otp });
+
+  assert.equal(verifyOtpResponse.status, 200);
+
+  const registerResponse = await request(app)
+    .post('/api/auth/register')
+    .send({
+      name: 'Verified User',
+      email: 'newuser@example.com',
+      password: 'Password123',
+      phone: '9876543210',
+      role: 'DONOR',
+      organization_name: 'Fresh Food Org',
+      address: 'Test Address',
+      city: 'Delhi',
+      state: 'Delhi',
+      country: 'India',
+      otp: sendOtpResponse.body.data.otp
+    });
+
+  assert.equal(registerResponse.status, 201);
+  assert.equal(registerResponse.body.data.user.email, 'newuser@example.com');
+});
+
 test('register, login, me, and profile update work with token-based auth', async () => {
   const userModel = createInMemoryUserModel();
   const authService = createAuthService({ userModel, jwtSecret: process.env.JWT_SECRET, tokenExpiresIn: '7d' });
@@ -100,6 +184,10 @@ test('register, login, me, and profile update work with token-based auth', async
   const authRoutes = createAuthRoutes({ authController, authMiddleware });
   const userRoutes = createUserRoutes({ userController, authMiddleware });
   const app = createTestApp({ authRoutes, userRoutes, authMiddleware, userModel });
+
+  const otpResponse = await request(app)
+    .post('/api/auth/send-otp')
+    .send({ phone: '9999999999', email: 'donor@test.com' });
 
   const registerResponse = await request(app)
     .post('/api/auth/register')
@@ -113,13 +201,18 @@ test('register, login, me, and profile update work with token-based auth', async
       address: 'Test Address',
       city: 'Delhi',
       state: 'Delhi',
-      country: 'India'
+      country: 'India',
+      otp: otpResponse.body.data.otp
     });
 
   assert.equal(registerResponse.status, 201);
   assert.equal(registerResponse.body.success, true);
   assert.equal(registerResponse.body.data.user.email, 'donor@test.com');
   assert.equal(registerResponse.body.data.user.password_hash, undefined);
+
+  const duplicateOtpResponse = await request(app)
+    .post('/api/auth/send-otp')
+    .send({ phone: '8888888888', email: 'donor@test.com' });
 
   const duplicateResponse = await request(app)
     .post('/api/auth/register')
@@ -133,7 +226,8 @@ test('register, login, me, and profile update work with token-based auth', async
       address: 'Test Address 2',
       city: 'Delhi',
       state: 'Delhi',
-      country: 'India'
+      country: 'India',
+      otp: duplicateOtpResponse.body.data.otp
     });
 
   assert.equal(duplicateResponse.status, 409);
